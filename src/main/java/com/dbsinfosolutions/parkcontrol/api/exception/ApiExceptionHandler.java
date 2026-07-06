@@ -4,12 +4,18 @@ import java.time.Instant;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.dbsinfosolutions.parkcontrol.domain.exception.BusinessException;
 import com.dbsinfosolutions.parkcontrol.domain.exception.GarageFullException;
+import com.dbsinfosolutions.parkcontrol.domain.exception.SessionNotFoundException;
+import com.dbsinfosolutions.parkcontrol.domain.exception.SpotNotFoundException;
+
+import jakarta.validation.ConstraintViolationException;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -23,10 +29,32 @@ public class ApiExceptionHandler {
                 exception.getMessage(), request.getRequestURI());
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiErrorResponse> handleConstraintViolation(
+            ConstraintViolationException exception, HttpServletRequest request) {
+        return buildResponse(HttpStatus.UNPROCESSABLE_CONTENT, "Validation Error",
+                exception.getMessage(), request.getRequestURI());
+    }
+
+    @ExceptionHandler({MissingServletRequestParameterException.class,
+            MethodArgumentTypeMismatchException.class, IllegalArgumentException.class})
+    public ResponseEntity<ApiErrorResponse> handleBadRequest(Exception exception,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.BAD_REQUEST, "Bad Request", exception.getMessage(),
+                request.getRequestURI());
+    }
+
     @ExceptionHandler(GarageFullException.class)
     public ResponseEntity<ApiErrorResponse> handleGarageFull(GarageFullException exception,
             HttpServletRequest request) {
         return buildResponse(HttpStatus.CONFLICT, "Conflict", exception.getMessage(),
+                request.getRequestURI());
+    }
+
+    @ExceptionHandler({SessionNotFoundException.class, SpotNotFoundException.class})
+    public ResponseEntity<ApiErrorResponse> handleNotFound(BusinessException exception,
+            HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Not Found", exception.getMessage(),
                 request.getRequestURI());
     }
 

@@ -11,10 +11,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "spot")
+@Table(name = "spot", indexes = {@Index(name = "idx_spot_status_id", columnList = "status,id"),
+        @Index(name = "idx_spot_latitude_longitude", columnList = "latitude,longitude")})
 public class SpotEntity {
 
     @Id

@@ -12,10 +12,13 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "parking_session")
+@Table(name = "parking_session",
+        indexes = {@Index(name = "idx_parking_session_plate_status_entry_time",
+                columnList = "plate,status,entry_time")})
 public class ParkingSessionEntity {
 
     @Id
