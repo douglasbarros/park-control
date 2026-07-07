@@ -1,0 +1,38 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: parkcontrol-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: sistemas
+      MYSQL_DATABASE: parkcontrol
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-psistemas"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: parkcontrol-app
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: parkcontrol
+      MYSQL_USER: root
+      MYSQL_PASSWORD: sistemas
+      PARKCONTROL_GARAGE_URL: http://host.docker.internal:3000/garage
+      SERVER_PORT: 3003
+    ports:
+      - "3003:3003"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  mysql_data:

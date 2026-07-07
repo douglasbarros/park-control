@@ -148,6 +148,20 @@ Resposta:
 
 A forma mais simples de rodar o ambiente completo é com o Docker Compose.
 
+Primeiro inicie o simulador externamente:
+
+```bash
+docker run -d -p 3000:3000 --name garage-app cfontes0estapar/garage-sim:1.0.0
+```
+
+Se estiver usando MacOS, inicie o proxy para que o simulador tenha acesso à rede localhost, sendo {simulator-ip} o ip do simulador iniciado acima:
+
+```bash
+docker run -d --name proxy-webhook --network="container:garage-app" alpine/socat tcp-listen:3003,fork tcp:{simulator-ip}:3003
+```
+
+Agora inicie o parkcontrol e o mysql com Docker Compose:
+
 ```bash
 docker-compose up -d
 ```
@@ -155,34 +169,28 @@ docker-compose up -d
 Isso irá iniciar:
 - A aplicação na porta 3003.
 - O simulador na porta 3000.
-- O banco de dados MySQL na porta 3306.
+- O banco de dados MySQL na porta interna 3306.
 
 A aplicação estará disponível em `http://localhost:3003`.
 
-## Como rodar sem Docker (híbrido)
+## Como rodar sem Docker
 
-Você também pode rodar a aplicação localmente e apenas o simulador e o banco de dados com Docker.
+Você também pode rodar a aplicação localmente se tiver um banco de dados MySQL externo já rodando.
 
-1.  **Iniciar o banco de dados:**
-    ```bash
-    docker-compose up -d mysql
-    ```
+1.  **Iniciar o banco de dados.**
 
 2.  **Iniciar o simulador:**
-    O simulador precisa conseguir acessar a sua aplicação na porta 3003 da sua máquina. Para isso, usamos `host.docker.internal` que aponta para o host.
-
     ```bash
-    docker run -p 3000:3000 \
-      -e WEBHOOK_URL=http://host.docker.internal:3003/webhook \
-      -e GARAGE_API_PORT=3000 \
-      --name parkcontrol-simulator \
-      cfontes0estapar/garage-sim:1.0.0
+    docker run -d -p 3000:3000 --name garage-app cfontes0estapar/garage-sim:1.0.0
     ```
-    **Observação:** O uso da variável de ambiente `WEBHOOK_URL` é uma suposição. Se o simulador não enviar eventos para a aplicação, pode ser que a URL do webhook esteja configurada de outra forma.
 
 3.  **Rodar a aplicação:**
     Configure a sua IDE para usar as seguintes variáveis de ambiente:
     - `MYSQL_HOST=localhost`
+    - `MYSQL_PORT=3306`
+    - `MYSQL_DATABASE=parkcontrol`
+    - `MYSQL_USER=root`
+    - `MYSQL_PASSWORD=sistemas`
     - `PARKCONTROL_GARAGE_URL=http://localhost:3000/garage`
 
     E então inicie a aplicação:
