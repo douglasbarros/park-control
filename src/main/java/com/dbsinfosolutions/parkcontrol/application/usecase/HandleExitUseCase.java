@@ -9,7 +9,6 @@ import java.time.ZoneOffset;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.dbsinfosolutions.parkcontrol.domain.exception.SessionNotFoundException;
 import com.dbsinfosolutions.parkcontrol.domain.model.Garage;
 import com.dbsinfosolutions.parkcontrol.domain.model.ParkingSession;
 import com.dbsinfosolutions.parkcontrol.domain.model.Revenue;
