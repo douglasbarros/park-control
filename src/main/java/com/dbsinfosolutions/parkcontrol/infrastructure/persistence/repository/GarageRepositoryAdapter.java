@@ -36,4 +36,9 @@ public class GarageRepositoryAdapter implements GarageRepository {
     public Optional<Garage> findBySector(String sector) {
         return garageJpaRepository.findBySector(sector).map(garageMapper::toDomain);
     }
+
+    @Override
+    public Integer sumTotalCapacity() {
+        return garageJpaRepository.sumTotalCapacity().orElse(0);
+    }
 }

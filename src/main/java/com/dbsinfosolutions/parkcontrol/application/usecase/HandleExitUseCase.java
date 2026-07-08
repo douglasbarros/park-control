@@ -51,11 +51,10 @@ public class HandleExitUseCase {
                 .orElseThrow(() -> new IllegalStateException("Garage not found for session"));
 
         long occupiedCount = spotRepository.countByStatus(SpotStatus.OCCUPIED);
-        int totalCapacity = garageRepository.findAll().stream().mapToInt(Garage::getCapacity).sum();
+        int totalCapacity = garageRepository.sumTotalCapacity();
         double occupancyRate = totalCapacity == 0 ? 0d : (double) occupiedCount / totalCapacity;
-        BigDecimal amount =
-                pricingService.calculateAmount(Duration.between(session.getEntryTime(), exitTime),
-                        garage.getBasePrice(), occupancyRate);
+        BigDecimal amount = pricingService.calculateAmount(Duration.between(session.getEntryTime(), exitTime),
+                garage.getBasePrice(), occupancyRate);
 
         spot.release();
         spotRepository.save(spot);

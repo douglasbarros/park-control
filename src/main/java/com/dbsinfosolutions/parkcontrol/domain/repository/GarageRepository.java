@@ -12,4 +12,6 @@ public interface GarageRepository {
     List<Garage> findAll();
 
     Optional<Garage> findBySector(String sector);
+
+    Integer sumTotalCapacity();
 }
